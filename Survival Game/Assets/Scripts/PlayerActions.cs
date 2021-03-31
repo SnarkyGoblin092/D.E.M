@@ -12,8 +12,6 @@ public class PlayerActions : MonoBehaviour
     [SerializeField] Inventory playerInventory;
     [SerializeField] float rayDistance = 3f;
 
-    GameObject previousObjectLookedAt;
-
     private void Awake()
     {
         cam = FindObjectOfType<Camera>();
@@ -56,11 +54,6 @@ public class PlayerActions : MonoBehaviour
 
             if (hitObject.GetComponent<Interactable>())
             {
-                if(previousObjectLookedAt != hitObject)
-                {
-                    DisableKeyPopups();
-                }
-
                 if (hitObject.GetComponent<Interactable>().GetObjectType == Interactable.types.ITEM)
                 {
                     pickupText.GetComponent<Text>().text = $"Pickup [{InputManager.instance.keybindings.interact}]";
@@ -78,8 +71,6 @@ public class PlayerActions : MonoBehaviour
                     interactText.SetActive(true);
                 }
             }
-
-            previousObjectLookedAt = hitObject;
         }
         else
         {
