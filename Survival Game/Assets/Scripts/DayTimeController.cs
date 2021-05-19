@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 
@@ -10,6 +8,7 @@ public class DayTimeController : MonoBehaviour
     public float dayTime = 360f;
 
     [SerializeField] float timeScale;
+    [SerializeField] float timeScaleMultiplier = 1;
     [SerializeField] float speed;
 
     [SerializeField] Light sun;
@@ -42,7 +41,7 @@ public class DayTimeController : MonoBehaviour
 
     void UpdateTime()
     {
-        dayTime += Time.deltaTime * timeScale * speed;
+        dayTime += Time.deltaTime * timeScale * timeScaleMultiplier * speed;
         if (dayTime > 1440f)
             dayTime = 0f;
 

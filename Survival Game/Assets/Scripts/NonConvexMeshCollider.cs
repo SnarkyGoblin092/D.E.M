@@ -1,12 +1,9 @@
 ﻿
 using System;
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Debug = UnityEngine.Debug;
 #if UNITY_EDITOR
 using UnityEditor;

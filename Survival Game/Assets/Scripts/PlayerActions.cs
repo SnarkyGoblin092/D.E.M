@@ -1,26 +1,29 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
+using TMPro;
 
 public class PlayerActions : MonoBehaviour
 {
     [SerializeField] Camera cam;
-    [SerializeField] GameObject inventoryPanel;
-    [SerializeField] GameObject pickupText;
-    [SerializeField] GameObject interactText;
-    [SerializeField] Inventory playerInventory;
+    [SerializeField] GameObject itemTooltip;
     [SerializeField] float rayDistance = 3f;
+    [SerializeField] GameObject titlePanel;
+    [SerializeField] GameObject slotPanel;
+    [SerializeField] GameObject inventoryPanel;
+    [SerializeField] GameObject tooltip;
+
+    [SerializeField] Inventory inventory;
+    [SerializeField] WorldItemsManager worldItemsManager;
 
     GameObject previousObjectLookedAt;
+
+    PlayerMovement pm;
 
     private void Awake()
     {
         cam = FindObjectOfType<Camera>();
-        inventoryPanel = GameObject.Find("Canvas").transform.Find("InventoryPanel").gameObject;
-        pickupText = GameObject.Find("Canvas").transform.Find("PickupText").gameObject;
-        interactText = GameObject.Find("Canvas").transform.Find("InteractText").gameObject;
-        playerInventory = transform.GetComponent<Inventory>();
+        worldItemsManager = GameObject.Find("Managers").GetComponent<WorldItemsManager>();
+        inventory = GameObject.Find("Inventory").GetComponent<Inventory>();
+        pm = gameObject.GetComponent<PlayerMovement>();
     }
 
     private void Update()
@@ -29,21 +32,37 @@ public class PlayerActions : MonoBehaviour
 
         if (!inventoryPanel.activeSelf)
         {
-            LockMouse();
-            GetComponent<PlayerMovement>().canMove = true;
+            tooltip.SetActive(false);
             CheckRay();
         } else
         {
             DisableKeyPopups();
-            GetComponent<PlayerMovement>().canMove = false;
+        }
+
+        if(pm.canMove){
+            LockMouse();
+        } else {
             ReleaseMouse();
         }
     }
 
     void CheckInputs()
     {
-        if (InputManager.instance.GetKeyDown("inventory"))
-            inventoryPanel.SetActive(!inventoryPanel.activeSelf);
+        if(GetComponent<PlayerMovement>().canToggleInventory){
+            if (InputManager.instance.GetKeyDown("inventory"))
+            {
+                titlePanel.SetActive(!titlePanel.activeSelf);
+                slotPanel.SetActive(!slotPanel.activeSelf);
+                inventoryPanel.SetActive(!inventoryPanel.activeSelf);
+                
+                GetComponent<PlayerMovement>().canMove = !GetComponent<PlayerMovement>().canMove;
+
+                if (inventoryPanel.activeSelf)
+                {
+                    inventory.deleteID = -1;
+                }
+            }
+        }
     }
 
     void CheckRay()
@@ -53,30 +72,46 @@ public class PlayerActions : MonoBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, rayDistance))
         {
             GameObject hitObject = hit.transform.gameObject;
-
-            if (hitObject.GetComponent<Interactable>())
+            ObjectData data;
+            if (data = hitObject.GetComponent<ObjectData>())
             {
-                if(previousObjectLookedAt != hitObject)
+                if (data.item.Pickuppable)
                 {
-                    DisableKeyPopups();
-                }
-
-                if (hitObject.GetComponent<Interactable>().GetObjectType == Interactable.types.ITEM)
-                {
-                    pickupText.GetComponent<Text>().text = $"Pickup [{InputManager.instance.keybindings.interact}]";
-                    pickupText.SetActive(true);
-
-                    if (InputManager.instance.GetKeyDown("interact"))
+                    if(data.amount > 1){
+                        itemTooltip.GetComponent<TMP_Text>().text = $"{data.item.Title} {data.amount}\n\nPickup [{InputManager.instance.keybindings.interact}]";
+                    }
+                    else 
                     {
-                        Debug.Log(hitObject.transform.name);
+                        itemTooltip.GetComponent<TMP_Text>().text = $"{data.item.Title}\n\nPickup [{InputManager.instance.keybindings.interact}]";
+                    }
+                    itemTooltip.SetActive(true);
+
+                    if (InputManager.instance.GetKeyDown("interact") && pm.canMove)
+                    {
                         PickupItem(hitObject);
                     }
                 }
-                else if (hitObject.GetComponent<Interactable>().GetObjectType == Interactable.types.INTERACTABLE)
+                else if (data.item.Interactable)
                 {
-                    interactText.GetComponent<Text>().text = $"Interact [{InputManager.instance.keybindings.interact}]";
-                    interactText.SetActive(true);
+                    itemTooltip.GetComponent<TMP_Text>().text = $"Interact [{InputManager.instance.keybindings.interact}]";
+                    itemTooltip.SetActive(true);
+
+                    if (InputManager.instance.GetKeyDown("interact") && pm.canMove)
+                    {
+                        if(hitObject.GetComponent<Bed>()){
+                            hitObject.GetComponent<Bed>().SkipTime();
+                        }
+                        else if(hitObject.GetComponent<Campfire>()){
+                            hitObject.GetComponent<Campfire>().playing = !hitObject.GetComponent<Campfire>().playing;
+                        } 
+                    }
+
+                    
                 }
+            }
+            else
+            {
+                DisableKeyPopups();
             }
 
             previousObjectLookedAt = hitObject;
@@ -89,17 +124,16 @@ public class PlayerActions : MonoBehaviour
 
     void DisableKeyPopups()
     {
-        pickupText.SetActive(false);
-        interactText.SetActive(false);
+        itemTooltip.SetActive(false);
     }
 
-    void LockMouse()
+    public void LockMouse()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    void ReleaseMouse()
+    public void ReleaseMouse()
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -107,9 +141,60 @@ public class PlayerActions : MonoBehaviour
 
     void PickupItem(GameObject hit)
     {
-        Item item = hit.GetComponent<Interactable>().item;
-        Debug.Log(item.itemName);
-        playerInventory.GiveItem(item.id);
-        Destroy(hit);
+        ObjectData objectData = hit.GetComponent<ObjectData>();
+        int freeScace = inventory.CheckInventorySpace(objectData.item);
+        
+        Debug.Log(freeScace);
+
+        int index;
+
+        if((index = inventory.CheckInventory(objectData.item)) != -1)
+        {
+            int amountToAdd = objectData.item.StackSize - inventory.items[index].Amount;
+            int groundAmount = objectData.amount - amountToAdd;
+
+            if (groundAmount < 0)
+            {
+                amountToAdd += groundAmount;
+            }
+
+            inventory.AddItem(objectData.item.ID, amountToAdd);
+
+            objectData.amount -= amountToAdd;
+            objectData.item.Amount -= amountToAdd;
+        } 
+        else 
+        {
+            int amountToAdd = 0;
+
+            if(objectData.amount >= objectData.item.StackSize){
+                amountToAdd = objectData.item.StackSize;
+            }
+            else 
+            {
+                amountToAdd = objectData.amount;
+            }
+
+            if(freeScace >= amountToAdd)
+            {
+                objectData.amount -= amountToAdd;
+                objectData.item.Amount -= amountToAdd;
+
+                inventory.AddItem(objectData.item.ID, amountToAdd);
+            } 
+            else 
+            {
+                objectData.amount -= freeScace;
+                objectData.item.Amount -= freeScace;
+
+                inventory.AddItem(objectData.item.ID, freeScace);
+            }
+        }
+
+        if(objectData.amount <= 0) 
+        {
+            worldItemsManager.items.Remove(hit);
+            Destroy(hit);
+        }
     }
 }

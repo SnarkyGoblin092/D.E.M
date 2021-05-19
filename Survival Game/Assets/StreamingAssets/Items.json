@@ -1,0 +1,156 @@
+[
+  {
+    "id": 0,
+    "title": "Banana",
+    "stats": {
+      "hunger": 3,
+      "thirst": 1
+    },
+    "description": "A juicy banana.",
+    "stack_size": 1,
+    "slug": "banana",
+    "droppable": true,
+    "pickuppable": true,
+    "interactable": false
+  },
+  {
+    "id": 1,
+    "title": "Coconut",
+    "stats": {
+      "hunger": 0,
+      "thirst": 0
+    },
+    "description": "A coconut with a hard shell.",
+    "stack_size": 1,
+    "slug": "coconut",
+    "droppable": true,
+    "pickuppable": true,
+    "interactable": false
+  },
+  {
+    "id": 2,
+    "title": "Open Coconut",
+    "stats": {
+      "hunger": 1,
+      "thirst": 3
+    },
+    "description": "An open coconut with a lot of juice in it.",
+    "stack_size": 1,
+    "slug": "open_coconut",
+    "droppable": true,
+    "pickuppable": true,
+    "interactable": false
+  },
+  {
+    "id": 3,
+    "title": "Wood",
+    "stats": {
+      "hunger": 0,
+      "thirst": 0
+    },
+    "description": "Crafting resource.",
+    "stack_size": 1,
+    "slug": "wood",
+    "droppable": true,
+    "pickuppable": true,
+    "interactable": false
+  },
+  {
+    "id": 4,
+    "title": "Stone",
+    "stats": {
+      "hunger": 0,
+      "thirst": 0
+    },
+    "description": "Crafting resource.",
+    "stack_size": 1,
+    "slug": "stone",
+    "droppable": true,
+    "pickuppable": true,
+    "interactable": false
+  },
+  {
+    "id": 5,
+    "title": "Scroll",
+    "stats": {
+      "hunger": 0,
+      "thirst": 0
+    },
+    "description": "A mysterious scroll.",
+    "stack_size": 1,
+    "slug": "scroll",
+    "droppable": true,
+    "pickuppable": true,
+    "interactable": false
+  },
+  {
+    "id": 6,
+    "title": "Bed",
+    "stats": {
+      "hunger": 1,
+      "thirst": 3
+    },
+    "description": "Not so comfy, but enough for sleeping.",
+    "stack_size": 1,
+    "slug": "bed",
+    "droppable": false,
+    "pickuppable": false,
+    "interactable": true
+  },
+  {
+    "id": 7,
+    "title": "Campfire",
+    "stats": {
+      "hunger": 0,
+      "thirst": 0
+    },
+    "description": "Gives out a lot of heat compared to it's\n   size.",
+    "stack_size": 1,
+    "slug": "campfire",
+    "droppable": false,
+    "pickuppable": false,
+    "interactable": true
+  },
+  {
+    "id": 8,
+    "title": "Torch",
+    "stats": {
+      "hunger": 0,
+      "thirst": 0
+    },
+    "description": "Brings light to the night.",
+    "stack_size": 1,
+    "slug": "torch",
+    "droppable": true,
+    "pickuppable": true,
+    "interactable": false
+  },
+  {
+    "id": 9,
+    "title": "Axe",
+    "stats": {
+      "hunger": 0,
+      "thirst": 0
+    },
+    "description": "Time to chop some trees...",
+    "stack_size": 1,
+    "slug": "axe",
+    "droppable": true,
+    "pickuppable": true,
+    "interactable": false
+  },
+  {
+    "id": 10,
+    "title": "Pickaxe",
+    "stats": {
+      "hunger": 0,
+      "thirst": 0
+    },
+    "description": "A handy tool when it comes to getting\n   some stone.",
+    "stack_size": 1,
+    "slug": "pickaxe",
+    "droppable": true,
+    "pickuppable": true,
+    "interactable": false
+  }
+]
